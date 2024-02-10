@@ -21,6 +21,7 @@ echo "Kong initialization..."
 
 # Set mgr urls for UI
 sed -i s#\{env}#"${ENV}"#g $config_path/ui.yaml
+sed -i s#\{domain}#"${DOMAIN}"#g $config_path/ui.yaml
 
 # Get the names of all files in the config directory
 config_files=$(ls $config_path)
