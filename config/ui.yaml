@@ -25,29 +25,6 @@ services:
     write_timeout: 60000
   - connect_timeout: 60000
     enabled: true
-    host: tenant-entitlement-{env}.{domain}
-    name: mgr-tenant-entitlements-0.0.1
-    path: /
-    port: 443
-    protocol: https
-    read_timeout: 60000
-    retries: 5
-    routes:
-      - https_redirect_status_code: 426
-        name: entitlements
-        expression: http.method == "GET" && (http.path == "/entitlements" || http.path ~ "/entitlements/([^/]+)/applications")
-        preserve_host: false
-        protocols:
-          - http
-          - https
-        request_buffering: true
-        response_buffering: true
-        strip_path: false
-    tags:
-      - mgr-tenant-entitlements-0.0.1
-    write_timeout: 60000
-  - connect_timeout: 60000
-    enabled: true
     host: tenant-manager-{env}.{domain}
     name: tenant-manager-0.0.1
     path: /
