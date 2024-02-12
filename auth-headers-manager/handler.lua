@@ -15,7 +15,7 @@ local function getCookies()
   end
 
   local cookies = {}
-  local iterator, err = ngx.re.gmatch(cookieHeader, "([^\\s]+)=([^\\s]+);\\s*", "io")
+  local iterator, err = ngx.re.gmatch(cookieHeader, "([^\\s]+)=([^\\s;]+)[;\\s]*", "io")
   if not iterator or err then
     return {}
   end
@@ -91,7 +91,7 @@ function AuthTokenManager:access(conf)
   kong.log.debug('is Okapi token enabled: ', conf.set_okapi_header)
   if conf.set_okapi_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(okapiTokenHeader) then
-      kong.log.debug("Setting X-Okapi-Token header from cookie value...", accessToken.token)
+      kong.log.debug("Setting X-Okapi-Token header from cookie value")
       kong.service.request.set_header(okapiTokenHeader, accessToken.token)
     end
   end
@@ -99,7 +99,7 @@ function AuthTokenManager:access(conf)
   kong.log.debug('is Authorization token enabled: ', conf.set_authorization_header)
   if conf.set_authorization_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(authorizationHeader) then
-      kong.log.debug("Setting Authorization header from cookie value...")
+      kong.log.debug("Setting Authorization header from cookie value")
       kong.service.request.set_header(authorizationHeader, "Bearer " .. accessToken.token)
     end
   end
