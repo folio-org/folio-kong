@@ -10,6 +10,7 @@ plugins:
         - PUT
         - POST
         - DELETE
+        - PATCH
       origins:
         - '*'
       preflight_continue: false
