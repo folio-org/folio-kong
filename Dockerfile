@@ -28,7 +28,7 @@ RUN mkdir "$DECK_DIRECTORY" \
     && rm -f "$DECK_DIRECTORY/$DECK_ARTIFACT_NAME"
 ENV PATH = "$PATH:$DECK_DIRECTORY"
 COPY config /opt/kong/config
-COPY privateKey.pem localhost.cer /etc/kong/ssl
+COPY privateKey.pem localhost.cer /etc/kong/ssl/
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /usr/local/bin/deck /entrypoint.sh
