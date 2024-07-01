@@ -1,4 +1,4 @@
-ARG KONG_VERSION=3.4.1-ubuntu
+ARG KONG_VERSION=3.7.1-ubuntu
 FROM kong:$KONG_VERSION
 
 ENV KONG_PROXY_ACCESS_LOG="/dev/stdout txns"
