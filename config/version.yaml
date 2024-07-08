@@ -9,7 +9,7 @@ services:
     plugins:
       - config:
           add:
-            headers: []
+            headers: ["Strict-Transport-Security:max-age=63072000; includeSubDomains; preload"]
             json: []
             json_types: []
           append:
