@@ -105,6 +105,7 @@ function AuthTokenManager:access(conf)
   if conf.set_okapi_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(okapiTokenHeader) then
       kong.log.debug("Setting X-Okapi-Token header from cookie value")
+      kong.service.request.clear_header(authorizationHeader)
       kong.service.request.set_header(okapiTokenHeader, accessToken.token)
     end
   end
@@ -113,6 +114,7 @@ function AuthTokenManager:access(conf)
   if conf.set_authorization_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(authorizationHeader) then
       kong.log.debug("Setting Authorization header from cookie value")
+      kong.service.request.clear_header(okapiTokenHeader)
       kong.service.request.set_header(authorizationHeader, "Bearer " .. accessToken.token)
     end
   end
