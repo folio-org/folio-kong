@@ -3,5 +3,6 @@ plugins:
   - config:
       set_okapi_header: true
       set_authorization_header: false
+      clean_access_token_cookie: true
     enabled: true
     name: auth-headers-manager

@@ -4,9 +4,9 @@ local AuthTokenManager = {
 }
 
 local kong = kong
-local cookieHeader = "cookie"
+local cookieHeader = "Cookie"
 local okapiTokenHeader = "X-Okapi-Token"
-local authorizationHeader = 'Authorization'
+local authorizationHeader = "Authorization"
 local folioAccessTokenCookie = "folioAccessToken"
 
 local function getCookies()
@@ -38,15 +38,20 @@ local function getCookies()
 end
 
 local function getCleanedCookiesValue(cookies)
+  if cookies == nil then
+    return ""
+  end
+
   local resultTable = {}
   for key, value in pairs(cookies) do
-    if key ~= folioAccessTokenCookie then
+    if key == folioAccessTokenCookie then
       goto continue
     end
     table.insert(resultTable, key .. "=".. value)
     ::continue::
   end
-  return table.concat(result, ";")
+
+  return table.concat(resultTable, ";")
 end
 
 local function startsWith(str, start)
@@ -61,14 +66,14 @@ local function getAccessTokenFromHeaders()
   if authorizationToken then
     if not startsWith(authorizationToken, "Bearer ") then
       return kong.response.error(404,
-        'Invalid authorization header, value must start with Bearer',
+        "Invalid authorization header, value must start with Bearer",
         { ["Content-Type"] = "application/json" })
     end
 
     local authorizationTokenValue = authorizationToken:sub(8, authorizationToken:len());
     if okapiAuthToken and okapiAuthToken ~= authorizationTokenValue then
       return kong.response.error(404,
-        'X-Okapi-Token is not equal to Authorization token',
+        "X-Okapi-Token is not equal to Authorization token",
         { ["Content-Type"] = "application/json" })
     end
 
@@ -84,7 +89,7 @@ local function getAccessToken(cookies)
   if folioAccessToken then
     if headersToken.token and headersToken.token ~= folioAccessToken then
       return kong.response.error(404,
-        headersToken.source .. ' token is not equal to ' .. folioAccessTokenCookie .. ' token in cookies',
+        headersToken.source .. " token is not equal to " .. folioAccessTokenCookie .. " token in cookies",
         { ["Content-Type"] = "application/json" })
     end
 
@@ -101,7 +106,7 @@ function AuthTokenManager:access(conf)
     return
   end
 
-  kong.log.debug('is Okapi token enabled: ', conf.set_okapi_header)
+  kong.log.debug("is Okapi token enabled: ", conf.set_okapi_header)
   if conf.set_okapi_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(okapiTokenHeader) then
       kong.log.debug("Setting X-Okapi-Token header from cookie value")
@@ -110,7 +115,7 @@ function AuthTokenManager:access(conf)
     end
   end
 
-  kong.log.debug('is Authorization token enabled: ', conf.set_authorization_header)
+  kong.log.debug("is Authorization token enabled: ", conf.set_authorization_header)
   if conf.set_authorization_header then
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(authorizationHeader) then
       kong.log.debug("Setting Authorization header from cookie value")
@@ -119,7 +124,7 @@ function AuthTokenManager:access(conf)
     end
   end
 
-  kong.log.debug('is clean access token cookie enabled: ', conf.clean_access_token_cookie)
+  kong.log.debug("is clean access token cookie enabled: ", conf.clean_access_token_cookie)
   if conf.clean_access_token_cookie then
     kong.service.request.clear_header(cookieHeader)
     local newCookieHeaderValue = getCleanedCookiesValue(cookies)
