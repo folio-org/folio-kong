@@ -4,18 +4,19 @@ local AuthTokenManager = {
 }
 
 local kong = kong
+local cookieHeader = "cookie"
 local okapiTokenHeader = "X-Okapi-Token"
 local authorizationHeader = 'Authorization'
 local folioAccessTokenCookie = "folioAccessToken"
 
 local function getCookies()
-  local cookieHeader = kong.request.get_header("cookie")
-  if not cookieHeader then
+  local cookieHeaderValue = kong.request.get_header(cookieHeader)
+  if not cookieHeaderValue then
     return {}
   end
 
   local cookies = {}
-  local iterator, err = ngx.re.gmatch(cookieHeader, "([^\\s]+)=([^\\s;]+)[;\\s]*", "io")
+  local iterator, err = ngx.re.gmatch(cookieHeaderValue, "([^\\s]+)=([^\\s;]+)[;\\s]*", "io")
   if not iterator or err then
     return {}
   end
@@ -34,6 +35,18 @@ local function getCookies()
   end
 
   return cookies
+end
+
+local function getCleanedCookiesValue(cookies)
+  local resultTable = {}
+  for key, value in pairs(cookies) do
+    if key ~= folioAccessTokenCookie then
+      goto continue
+    end
+    table.insert(resultTable, key .. "=".. value)
+    ::continue::
+  end
+  return table.concat(result, ";")
 end
 
 local function startsWith(str, start)
@@ -65,8 +78,7 @@ local function getAccessTokenFromHeaders()
   return { source = okapiTokenHeader, token = okapiAuthToken }
 end
 
-local function getAccessToken()
-  local cookies = getCookies()
+local function getAccessToken(cookies)
   local folioAccessToken = cookies[folioAccessTokenCookie]
   local headersToken = getAccessTokenFromHeaders();
   if folioAccessToken then
@@ -83,7 +95,8 @@ local function getAccessToken()
 end
 
 function AuthTokenManager:access(conf)
-  local accessToken = getAccessToken()
+  local cookies = getCookies();
+  local accessToken = getAccessToken(cookies)
   if not accessToken then
     return
   end
@@ -101,6 +114,15 @@ function AuthTokenManager:access(conf)
     if accessToken.source == folioAccessTokenCookie and not kong.request.get_header(authorizationHeader) then
       kong.log.debug("Setting Authorization header from cookie value")
       kong.service.request.set_header(authorizationHeader, "Bearer " .. accessToken.token)
+    end
+  end
+
+  kong.log.debug('is clean access token cookie enabled: ', conf.clean_access_token_cookie)
+  if conf.clean_access_token_cookie then
+    kong.service.request.clear_header(cookieHeader)
+    local newCookieHeaderValue = getCleanedCookiesValue(cookies)
+    if newCookieHeaderValue ~= "" then
+      kong.service.request.set_header(cookieHeader, newCookieHeaderValue)
     end
   end
 end
