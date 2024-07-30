@@ -37,7 +37,7 @@ local function getCookies()
   return cookies
 end
 
-local function getCleanedCookiesValue(cookies)
+local function getCookieHeaderWithoutAccessToken(cookies)
   if cookies == nil then
     return ""
   end
@@ -127,7 +127,7 @@ function AuthTokenManager:access(conf)
   kong.log.debug("is clean access token cookie enabled: ", conf.clean_access_token_cookie)
   if conf.clean_access_token_cookie then
     kong.service.request.clear_header(cookieHeader)
-    local newCookieHeaderValue = getCleanedCookiesValue(cookies)
+    local newCookieHeaderValue = getCookieHeaderWithoutAccessToken(cookies)
     if newCookieHeaderValue ~= "" then
       kong.service.request.set_header(cookieHeader, newCookieHeaderValue)
     end
