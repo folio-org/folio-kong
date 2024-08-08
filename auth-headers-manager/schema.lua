@@ -18,6 +18,11 @@ return {
           default = false,
           required = false },
         },
+        { clean_access_token_cookie = {
+          type = "boolean",
+          default = false,
+          required = false },
+        },
       },
     } }
   }
