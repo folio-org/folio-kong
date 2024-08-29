@@ -9,11 +9,18 @@ ENV KONG_ADMIN_ACCESS_LOG="/dev/stdout txns"
 ENV KONG_NGINX_HTTP_LOG_FORMAT="txns '\$http_x_forwarded_for - \$remote_addr - \$remote_user [\$time_local] \"\$request\" \$status \$body_bytes_sent rt=\$request_time uct=\"\$upstream_connect_time\" uht=\"\$upstream_header_time\" urt=\"\$upstream_response_time\" \"\$http_user_agent\" \"\$http_x_okapi_tenant\"'"
 ENV KONG_ROUTER_FLAVOR=expressions
 ENV DECK_SERVICE_PROTOCOL=http
+ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /tmp/awscli-x86_64.zip
+ADD https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip /tmp/awscli-aarch64.zip
 
 USER root
 RUN mkdir /opt/javaagents && \
-    chown -R kong:kong /opt/javaagents && \
-    chmod -R 755 /opt/javaagents
+    chown -R keycloak:keycloak /opt/javaagents && \
+    chmod -R 755 /opt/javaagents && \
+    unzip /tmp/awscli-x86_64.zip -d ./awscli-x86_64 && \
+    unzip  /tmp/awscli-aarch64.zip -d ./awscli-aarch64 && \
+    uname -m | grep -q x86_64 && \
+    ./awscli-x86_64/aws/install -i /usr/local/aws-cli -b /usr/local/bin || \
+    ./awscli-aarch64/aws/install -i /usr/local/aws-cli -b /usr/local/bin
     
 ARG TARGETARCH
 ARG DECK_VERSION=1.27.1
