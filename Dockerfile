@@ -18,7 +18,7 @@ RUN mkdir /opt/javaagents && \
     chmod -R 755 /opt/javaagents && \
     unzip /tmp/awscli-x86_64.zip -d ./awscli-x86_64 && \
     unzip  /tmp/awscli-aarch64.zip -d ./awscli-aarch64 && \
-    ls -la && \
+    rm -rf /tmp/awscli-x86_64.zip /tmp/awscli-aarch64.zip && \
     uname -m | grep -q x86_64 && \
     ./awscli-x86_64/aws/install -i /usr/local/aws-cli -b /usr/local/bin || \
     ./awscli-aarch64/aws/install -i /usr/local/aws-cli -b /usr/local/bin
