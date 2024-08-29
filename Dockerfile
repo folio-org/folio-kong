@@ -11,7 +11,10 @@ ENV KONG_ROUTER_FLAVOR=expressions
 ENV DECK_SERVICE_PROTOCOL=http
 
 USER root
-
+RUN mkdir /opt/javaagents && \
+    chown -R kong:kong /opt/javaagents && \
+    chmod -R 755 /opt/javaagents
+    
 ARG TARGETARCH
 ARG DECK_VERSION=1.27.1
 ARG DECK_DIRECTORY="/usr/local/bin/deck"
