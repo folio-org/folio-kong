@@ -14,10 +14,11 @@ ADD https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip /tmp/awscli-aarch6
 
 USER root
 RUN mkdir /opt/javaagents && \
-    chown -R keycloak:keycloak /opt/javaagents && \
+    chown -R kong:kong /opt/javaagents && \
     chmod -R 755 /opt/javaagents && \
     unzip /tmp/awscli-x86_64.zip -d ./awscli-x86_64 && \
     unzip  /tmp/awscli-aarch64.zip -d ./awscli-aarch64 && \
+    ls -la && \
     uname -m | grep -q x86_64 && \
     ./awscli-x86_64/aws/install -i /usr/local/aws-cli -b /usr/local/bin || \
     ./awscli-aarch64/aws/install -i /usr/local/aws-cli -b /usr/local/bin
