@@ -1,8 +1,9 @@
 name: Docker central workflow
 
 on:
-  - push
-  - workflow_dispatch
+  push:
+    branches: [ main, master ]
+    workflow_dispatch:
 
 jobs:
   docker:
