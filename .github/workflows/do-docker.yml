@@ -1,9 +1,11 @@
 name: Docker central workflow
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master ]
-    workflow_dispatch:
+    tags:
+      - '[vV][0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
   docker:
