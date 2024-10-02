@@ -9,7 +9,6 @@ on:
 
 jobs:
   docker:
-    uses: folio-org/.github/.github/workflows/docker.yml@master
-    if: github.ref_name == github.event.repository.default_branch || github.event_name != 'push'
+    uses: folio-org/.github/.github/workflows/docker.yml@v1
     secrets: inherit
 
