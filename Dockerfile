@@ -1,5 +1,5 @@
-ARG KONG_VERSION=3.7.1-ubuntu
-FROM kong:$KONG_VERSION
+ARG KONG_VERSION=3.9.0-ubuntu
+FROM docker.io/library/kong:$KONG_VERSION
 
 ENV KONG_PROXY_ACCESS_LOG="/dev/stdout txns"
 # This effectively means that both proxy access and admin access logs will both be sent to stdout
@@ -13,7 +13,7 @@ ENV DECK_SERVICE_PROTOCOL=http
 USER root
 
 ARG TARGETARCH
-ARG DECK_VERSION=1.27.1
+ARG DECK_VERSION=1.47.0
 ARG DECK_DIRECTORY="/usr/local/bin/deck"
 ARG DECK_ARTIFACT_NAME="deck_${DECK_VERSION}_linux_${TARGETARCH}.tar.gz"
 ARG DECK_DOWNLOAD_URL="https://github.com/kong/deck/releases/download/v${DECK_VERSION}/${DECK_ARTIFACT_NAME}"
