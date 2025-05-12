@@ -4,6 +4,12 @@
 
 A docker image for kong.
 
+## Version
+
+The major and minor version of folio-kong matches the major and minor version of the kong container it is based on.
+
+The patch version of folio-kong starts at 0 and gets incremented for each release.
+
 ## Environment Variables
 
 
