@@ -1,4 +1,4 @@
-ARG KONG_VERSION=3.9.0-ubuntu
+ARG KONG_VERSION=3.9.1-ubuntu
 FROM docker.io/library/kong:$KONG_VERSION
 
 # Kong configuration options documentation: https://github.com/Kong/kong/blob/master/kong.conf.default
@@ -19,7 +19,7 @@ ENV DECK_SERVICE_PROTOCOL=http
 USER root
 
 ARG TARGETARCH
-ARG DECK_VERSION=1.47.0
+ARG DECK_VERSION=1.49.1
 ARG DECK_DIRECTORY="/usr/local/bin/deck"
 ARG DECK_ARTIFACT_NAME="deck_${DECK_VERSION}_linux_${TARGETARCH}.tar.gz"
 ARG DECK_DOWNLOAD_URL="https://github.com/kong/deck/releases/download/v${DECK_VERSION}/${DECK_ARTIFACT_NAME}"
