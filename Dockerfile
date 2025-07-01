@@ -3,6 +3,9 @@ FROM docker.io/library/kong:$KONG_VERSION
 
 # Kong configuration options documentation: https://github.com/Kong/kong/blob/master/kong.conf.default
 
+# Remove priority header to work around DoS CVE-2025-31650: https://folio-org.atlassian.net/browse/KONG-24
+ENV KONG_NGINX_LOCATION_PROXY_SET_HEADER='Priority ""'
+
 ENV KONG_HEADERS="off"
 ENV KONG_PROXY_ACCESS_LOG="/dev/stdout txns"
 # This effectively means that both proxy access and admin access logs will both be sent to stdout

@@ -1,0 +1,46 @@
+services:
+  dbkong:
+    container_name: dbkong
+    image: docker.io/library/postgres:16-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: 'PGPASSWORD=postgres psql -h dbkong -U postgres -c "SELECT 1" || exit 1'
+      interval: 1s
+      retries: 100
+  kong:
+    container_name: kong
+    build: .
+    ports: ["8000-8002:8000-8002"]
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: postgres
+      KONG_PG_HOST: dbkong
+      KONG_PG_PORT: 5432
+      KONG_PG_USER: postgres
+      KONG_PG_PASSWORD: postgres
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PLUGINS: bundled
+      ENV: local
+    depends_on:
+      dbkong:
+        condition: service_healthy
+  init-kong:
+    container_name: init-kong
+    image: docker.io/alpine/socat
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "until wget -qS http://kong:8001; do sleep 1; done; wget -qS -O - --post-data 'name=echo&url=http://echo:8080' http://kong:8001/services ; wget -qS -O - --post-data 'name=echo&paths[]=/' http://kong:8001/services/echo/routes"
+    depends_on:
+      kong:
+        condition: service_healthy
+  echo:
+    container_name: echo
+    image: docker.io/alpine/socat
+    command: |
+      -T .1 tcp-l:8080,reuseaddr,fork,crlf system:"echo 'HTTP/1.0 200 OK'; echo; cat"
+networks:
+  default:
+    name: kongnet
