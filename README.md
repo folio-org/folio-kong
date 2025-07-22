@@ -2,7 +2,13 @@
 
 ## Introduction
 
-A docker image for kong.
+A Kong docker image with customizations for FOLIO.
+
+It routes requests from outside a FOLIO host (like Stripes front-end user interface, or external scripts) to the modules.
+
+For details see
+* https://folio-org.atlassian.net/wiki/spaces/PLATFORM/pages/193134643/Folio+Eureka+Platform+Overview
+* https://konghq.com/products/kong-gateway
 
 ## Version
 
