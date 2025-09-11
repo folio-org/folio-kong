@@ -2,7 +2,20 @@
 
 ## Introduction
 
-A docker image for kong.
+A Kong docker image with customizations for FOLIO.
+
+It routes requests from outside a FOLIO host (like Stripes front-end user interface, or external scripts) to the modules.
+
+For details see
+* https://folio-org.atlassian.net/wiki/spaces/PLATFORM/pages/193134643/Folio+Eureka+Platform+Overview
+* https://konghq.com/products/kong-gateway
+
+The kong docker image is customized by changing settings and by enabling plugins:
+* Some settings are changed via environment variables set in the `Dockerfile`.
+* Some settings are changed via the config files in the `config` directory.
+* `deck` and `auth-headers-manager` plugin are enabled by the `Dockerfile`.
+* The `auth-headers-manager` plugin is configured in the `auth-headers-manager` directory to
+  populate HTTP authorization headers `Authorization` and `X-Okapi-Token` from cookie `folioAccessToken`.
 
 ## Version
 
