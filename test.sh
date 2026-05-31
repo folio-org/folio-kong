@@ -1,8 +1,14 @@
-#/bin/sh
+#!/bin/sh
 
 # prerequisite: Kong has been started this way:
 # docker-compose build
 # docker-compose up
+#
+# For CORS tests (KONG-48), use:
+#   CORS_ORIGINS="https://folio.example.com https://.*\\.example.com" docker-compose up --build
+#   ./test-cors.sh
+#
+# See test-cors.sh for the full set of scenarios from the KONG-48 acceptance criteria.
 
 for a in `seq 100`
 do

@@ -26,10 +26,16 @@ The patch version of folio-kong starts at 0 and gets incremented for each releas
 ## Environment Variables
 
 
-| Name                                         | Default value | Suggested value | Required | Description                                                                                   |
-|:---------------------------------------------|:-------------:|:---------------:|:--------:|:----------------------------------------------------------------------------------------------|
-| KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS |       -       |     4 200k      |   true   | Sets buffer size for large headers to embedded nginx. (https)                                 |
-| KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS  |       -       |     4 200k      |   true   | Sets buffer size for large headers to embedded nginx. (http)                                  |
-| KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE         |      1m       |      256m       |  false   | Sets the maximum allowed size of the client request body. Required for uploading large files. |
+| Name                                         | Default value          | Suggested value                                      | Required | Description                                                                                   |
+|:---------------------------------------------|:----------------------:|:-----------------------------------------------------|:--------:|:----------------------------------------------------------------------------------------------|
+| CORS_ORIGINS                                 | `*` (via `cors.yaml`)  | `https://folio.example.com https://.*\\.example.com` | false    | Space-separated list of allowed origins (fully-qualified URLs or PCRE regexes) for the Kong CORS plugin. When set, `entrypoint.sh` overrides the default `*` at runtime via PATCH to the Admin API after `deck sync`. Enables production CORS restrictions without rebuilding the image. |
+| KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS |       -                |     4 200k                                           |   true   | Sets buffer size for large headers to embedded nginx. (https)                                 |
+| KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS  |       -                |     4 200k                                           |   true   | Sets buffer size for large headers to embedded nginx. (http)                                  |
+| KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE         |      1m                |      256m                                            |  false   | Sets the maximum allowed size of the client request body. Required for uploading large files. |
 
-See https://github.com/Kong/kong/blob/master/kong.conf.default for other environment variable configration options for kong.
+See https://github.com/Kong/kong/blob/master/kong.conf.default for other environment variable configuration options for kong.
+
+## Testing
+
+* `./test.sh` – basic smoke test of the running container (auth header rewriting).
+* `./test-cors.sh` – exercises the `CORS_ORIGINS` feature (KONG-48). Start the stack with the desired `CORS_ORIGINS` value first.

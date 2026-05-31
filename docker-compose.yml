@@ -23,6 +23,10 @@ services:
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
       KONG_PLUGINS: bundled
       ENV: local
+      # Set this to test/verify KONG-48 CORS_ORIGINS behavior (space-separated URLs or PCRE regexes)
+      # Example: CORS_ORIGINS="https://folio.example.com https://.*\\.example.com"
+      # When unset, the default origins: ['*'] from config/cors.yaml remains in effect.
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
     depends_on:
       dbkong:
         condition: service_healthy
