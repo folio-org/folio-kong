@@ -9,10 +9,7 @@
 #      docker-compose up --build
 #
 #      # Restricted origins (AC1, AC2, AC3)
-#      CORS_ORIGINS="https://folio.example.com https://admin.example.com" docker-compose up --build
-#
-#      # PCRE regex example
-#      CORS_ORIGINS="https://.*\\.example.com" docker-compose up --build
+#      CORS_ORIGINS="https://folio.example.com https://admin.example.com https://.*\\.example\\.com" docker-compose up --build
 #
 #   2. Then run this script:
 #      ./test-cors.sh
