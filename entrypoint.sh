@@ -62,7 +62,7 @@ if [ -n "${CORS_ORIGINS:-}" ]; then
   # Find the actual plugin ID of the cors plugin instance created by deck
   # (we cannot PATCH /plugins/cors by name reliably; we need the UUID).
   plugin_id=$(curl -s "http://localhost:8001/plugins" \
-    | jq -r 'first(.data[] | select(.name == "cors" and any(.tags[]; . == "automation"))) | .id // empty')
+    | jq -r 'first(.data[] | select(.name == "cors")).id // empty')
 
   if [ -n "$plugin_id" ]; then
     echo "Patching /plugins/${plugin_id} with origins: ${origins_json}"
