@@ -26,7 +26,7 @@ ARG DECK_DOWNLOAD_URL="https://github.com/kong/deck/releases/download/v${DECK_VE
 
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get install -y curl zip \
+    && apt-get install -y curl zip jq \
     && apt-get clean
 
 RUN mkdir "$DECK_DIRECTORY" \
