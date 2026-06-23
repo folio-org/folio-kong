@@ -11,8 +11,7 @@ plugins:
         - POST
         - DELETE
         - PATCH
-      origins:
-        - '*'
+      origins:${{ env "DECK_CORS_ORIGINS" }}
       preflight_continue: false
     enabled: true
     name: cors
