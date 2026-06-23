@@ -21,10 +21,7 @@ services:
             json: []
             json_types: []
           remove:
-            headers:
-              - Cache-Control
-              - Pragma
-              - Expires
+            headers: []
             json:
               - configuration
               - pids
@@ -36,7 +33,10 @@ services:
           rename:
             headers: []
           replace:
-            headers: []
+            headers:
+              - "Cache-Control:private, no-cache, no-store, max-age=0"
+              - "Pragma:no-cache"
+              - "Expires:0"
             json: []
             json_types: []
         enabled: true
