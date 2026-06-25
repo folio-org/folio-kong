@@ -35,6 +35,42 @@ The patch version of folio-kong starts at 0 and gets incremented for each releas
 
 See https://github.com/Kong/kong/blob/master/kong.conf.default for other environment variable configuration options for kong.
 
+## CORS Configuration
+
+The CORS plugin is enabled via `config/cors.yaml` and controlled through the `CORS_ORIGINS`
+environment variable (see table above).
+
+### Known Issue: Single Plain-URL Origin (Kong 3.9.1)
+
+Kong's CORS plugin has a fast path for exactly **one plain-URL origin**: when `n_origins == 1`
+and the value contains no regex characters, Kong sets `Access-Control-Allow-Origin`
+unconditionally — without checking the request `Origin` header. Any client request receives
+the header regardless of what `Origin` it sends.
+
+**Example of the problem:**
+
+```
+CORS_ORIGINS="https://folio.example.com"   # single plain URL
+```
+
+A request from `https://evil.com` still gets `Access-Control-Allow-Origin: https://folio.example.com`.
+
+**Workarounds** (all three are equivalent in effect):
+
+1. **Anchored regex** (recommended) — use regex syntax so Kong takes the iterative match path:
+   ```
+   CORS_ORIGINS="^https:\/\/folio\.example\.com$"
+   ```
+
+2. **Duplicate URL** — repeat the same URL twice to force `n_origins == 2`:
+   ```
+   CORS_ORIGINS="https://folio.example.com https://folio.example.com"
+   ```
+
+3. **Second distinct origin** — applicable when multiple origins are genuinely needed:
+   ```
+   CORS_ORIGINS="https://folio.example.com https://admin.example.com"
+   ```
 ## Testing
 
 * `./test.sh` – basic smoke test of the running container (auth header rewriting).
