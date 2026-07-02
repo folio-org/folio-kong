@@ -5,7 +5,7 @@ services:
     host: 127.0.0.1
     name: version
     tags: [ "automation" ]
-    path: /
+    path: /version
     plugins:
       - config:
           add:
@@ -14,31 +14,13 @@ services:
               - "Pragma:no-cache"
               - "Expires:0"
               - "Strict-Transport-Security:max-age=31536000; includeSubDomains; preload"
-            json: []
-            json_types: []
-          append:
-            headers: []
-            json: []
-            json_types: []
           remove:
-            headers: []
-            json:
-              - configuration
-              - pids
-              - timers
-              - node_id
-              - hostname
-              - plugins
-              - tagline
-          rename:
             headers: []
           replace:
             headers:
               - "Cache-Control:private, no-cache, no-store, max-age=0"
               - "Pragma:no-cache"
               - "Expires:0"
-            json: []
-            json_types: []
         enabled: true
         name: response-transformer
         protocols:

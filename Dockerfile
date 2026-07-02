@@ -1,4 +1,4 @@
-ARG KONG_VERSION=3.9.1-ubuntu
+ARG KONG_VERSION=3.9.3-ubuntu
 FROM docker.io/library/kong:$KONG_VERSION
 
 # Kong configuration options documentation: https://github.com/Kong/kong/blob/master/kong.conf.default
@@ -33,7 +33,7 @@ RUN mkdir "$DECK_DIRECTORY" \
     && curl -sL "$DECK_DOWNLOAD_URL" -o "$DECK_DIRECTORY/$DECK_ARTIFACT_NAME" \
     && tar -xf "$DECK_DIRECTORY/$DECK_ARTIFACT_NAME" -C "$DECK_DIRECTORY" \
     && rm -f "$DECK_DIRECTORY/$DECK_ARTIFACT_NAME"
-ENV PATH = "$PATH:$DECK_DIRECTORY"
+ENV PATH="$PATH:$DECK_DIRECTORY"
 COPY config /opt/kong/config
 COPY entrypoint.sh /entrypoint.sh
 
