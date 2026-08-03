@@ -9,11 +9,7 @@ services:
     plugins:
       - config:
           add:
-            headers:
-              - "Cache-Control:private, no-cache, no-store, max-age=0"
-              - "Pragma:no-cache"
-              - "Expires:0"
-              - "Strict-Transport-Security:max-age=31536000; includeSubDomains; preload"
+            headers: []
             json: []
             json_types: []
           append:
@@ -33,10 +29,7 @@ services:
           rename:
             headers: []
           replace:
-            headers:
-              - "Cache-Control:private, no-cache, no-store, max-age=0"
-              - "Pragma:no-cache"
-              - "Expires:0"
+            headers: []
             json: []
             json_types: []
         enabled: true
