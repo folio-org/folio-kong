@@ -3,11 +3,11 @@ plugins:
   - name: response-transformer
     enabled: true
     config:
-      replace:
+      remove:
         headers:
-          - "Cache-Control:private, no-cache, no-store, max-age=0"
-          - "Pragma:no-cache"
-          - "Expires:0"
+          - Cache-Control
+          - Pragma
+          - Expires
       add:
         headers:
           - "Cache-Control:private, no-cache, no-store, max-age=0"
