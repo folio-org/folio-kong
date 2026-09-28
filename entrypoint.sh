@@ -20,8 +20,8 @@ fi
 # Wait for Kong to start up
 SECONDS=0
 until curl -s --max-time 5 http://localhost:8001 >/dev/null 2>&1; do
-  if (( SECONDS >= 60 )); then
-    echo "Kong Admin API did not answer within 60 s, exiting" >&2
+  if (( SECONDS >= 300 )); then
+    echo "Kong Admin API did not answer within 300 s, exiting" >&2
     kong stop
     exit 1
   fi
