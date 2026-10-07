@@ -8,11 +8,23 @@ kong migrations bootstrap
 kong migrations up
 kong migrations finish
 
-# Start Kong
-kong start
+# Remove a stale nginx pid file before starting Kong. If its PID has been reused,
+# kong start can refuse with "Kong is already running".
+# No nginx from the previous container run survives into this startup.
+rm -f "${KONG_PREFIX:-/usr/local/kong}/pids/nginx.pid"
+if ! kong start; then
+  echo "Kong failed to start, exiting" >&2
+  exit 1
+fi
 
 # Wait for Kong to start up
-until curl -s http://localhost:8001 >/dev/null 2>&1; do
+SECONDS=0
+until curl -s --max-time 5 http://localhost:8001 >/dev/null 2>&1; do
+  if (( SECONDS >= 300 )); then
+    echo "Kong Admin API did not answer within 300 s, exiting" >&2
+    kong stop
+    exit 1
+  fi
   echo "Waiting for Kong to start..."
   sleep 1
 done
