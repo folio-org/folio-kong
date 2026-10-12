@@ -1,0 +1,247 @@
+{
+  "_disclaimer": "Default values are calibrated against a reference bugfest environment. See ADR-0013 (Module configuration management) for the governance model behind this file. Kong is not a JVM application, so there is no java section. Resource values and nginx tuning must be adjusted to the target host capacity.",
+  "description": "folio-kong configuration template",
+  "moduleDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the kong container"
+      },
+      {
+        "name": "memory",
+        "value": "6144",
+        "description": "Memory hard limit for the kong container in MiB; must cover KONG_MEM_CACHE_SIZE, which is allocated twice by Kong, plus the nginx worker processes"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "6144",
+        "description": "Memory reservation (soft limit) for the kong container in MiB"
+      }
+    ],
+    "deployment": {
+      "isHaSupported": true,
+      "replicasRecommendedCount": 2,
+      "description": "Kong runs in database mode, so all replicas share the routes, services and plugins stored in PostgreSQL. On every start the entrypoint bootstraps and applies Kong migrations and then runs deck sync for the tagged FOLIO configuration, both of which are idempotent. Because it also runs kong migrations finish, replicas of different Kong versions should not run side by side during an upgrade."
+    },
+    "EnvVars": [
+      {
+        "name": "KONG_DATABASE",
+        "value": "postgres",
+        "description": "Datastore used by Kong. FOLIO relies on database mode (postgres): modules register their services and routes through the Admin API and the entrypoint runs database migrations.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "KONG_PG_HOST",
+        "value": null,
+        "description": "Hostname of the PostgreSQL server holding the Kong database.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "KONG_PG_PORT",
+        "value": "5432",
+        "description": "TCP port of the PostgreSQL server.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "KONG_PG_DATABASE",
+        "value": "kong",
+        "description": "Name of the PostgreSQL database used by Kong.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "KONG_PG_USER",
+        "value": null,
+        "description": "PostgreSQL user for the Kong database (sourced from secret store). Needs rights to run schema migrations, which the entrypoint executes on every start.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "KONG_PG_PASSWORD",
+        "value": null,
+        "description": "PostgreSQL password for the Kong database user (sourced from secret store).",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "KONG_PROXY_LISTEN",
+        "value": "0.0.0.0:8000",
+        "description": "Address and port on which Kong accepts proxy traffic from outside the platform (Stripes UI, external scripts). Setting a single plain-HTTP listener drops Kong's default 8443 TLS listener; TLS is expected to terminate in front of Kong.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_ADMIN_LISTEN",
+        "value": "0.0.0.0:8001",
+        "description": "Address and port of the Kong Admin API, used by mgr-tenants and mgr-tenant-entitlements to register services and routes and by the entrypoint for its readiness check. The Admin API has no authentication, so expose it only to the internal network.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "KONG_ADMIN_GUI_API_URL",
+        "value": "http://localhost:8001",
+        "description": "URL of the Admin API as reachable from the browser of a Kong Manager user; Kong Manager (port 8002) uses it to talk to the Admin API.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_PLUGINS",
+        "value": "bundled",
+        "description": "Plugins Kong loads. The entrypoint appends the FOLIO auth-headers-manager plugin to this value, so it must be set (bundled loads all plugins shipped with Kong).",
+        "type": "FUNCTIONAL",
+        "essential": true
+      },
+      {
+        "name": "KONG_ROUTER_FLAVOR",
+        "value": "expressions",
+        "description": "Router implementation. The CORS and version routes in the FOLIO declarative configuration are written as expressions, so this must stay expressions. Baked into the image.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DECK_SERVICE_PROTOCOL",
+        "value": "http",
+        "description": "Protocol used by the CORS and version services that deck creates for Kong's own endpoints; substituted into the declarative configuration. Baked into the image.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "CORS_ORIGINS",
+        "value": null,
+        "description": "Space-separated list of origins (URLs or PCRE regexes) allowed by the Kong CORS plugin. When unset, all origins (*) are allowed; set it in production. A single plain URL is not enforced by Kong 3.9, so use an anchored regex such as ^https://folio\\.example\\.com$ or list two origins.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "KONG_HEADERS",
+        "value": "off",
+        "description": "Kong-generated response headers (Server, Via, latency tokens). off suppresses them so the Kong version is not disclosed. Baked into the image.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_LOCATION_PROXY_SET_HEADER",
+        "value": "Priority \"\"",
+        "description": "nginx proxy_set_header injected into the proxy location to strip the Priority request header, a workaround for the DoS vulnerability CVE-2025-31650. Do not remove. Baked into the image.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_LOG_LEVEL",
+        "value": "info",
+        "description": "Log level of the Kong/nginx error log (debug, info, notice, warn, error, crit, alert, emerg).",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_PROXY_ACCESS_LOG",
+        "value": "/dev/stdout txns",
+        "description": "Destination and format name of the proxy access log. The txns format is defined by KONG_NGINX_HTTP_LOG_FORMAT. Baked into the image.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_ADMIN_ACCESS_LOG",
+        "value": "/dev/stdout txns",
+        "description": "Destination and format name of the Admin API access log; it shares stdout with the proxy access log. Baked into the image.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_HTTP_LOG_FORMAT",
+        "value": "txns '$time_iso8601 [$request_id] [$http_x_okapi_tenant] [$remote_user] [] $http_x_forwarded_for - $remote_addr - $remote_user $request $status $body_bytes_sent rt=$request_time uct=$upstream_connect_time uht=$upstream_header_time urt=$upstream_response_time $http_user_agent'",
+        "description": "Definition of the txns access log format, including the request ID and the tenant from the x-okapi-tenant header. Overrides the format baked into the image.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_MEM_CACHE_SIZE",
+        "value": "2048m",
+        "description": "Size of each of the two shared-memory caches Kong uses for database entities (kong_core_cache and kong_cache), so total usage is twice this value. Raise it when many routes and services are registered; size the container memory accordingly.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_WORKER_PROCESSES",
+        "value": "2",
+        "description": "Number of nginx worker processes. Kong's default is auto (one per CPU core of the host); a fixed number is used so a container sharing a large host does not start excess workers.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE",
+        "value": "1024m",
+        "description": "Maximum allowed size of a client request body. Must be large enough for the biggest file uploaded through the gateway, such as data import files.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_HTTP_CLIENT_HEADER_BUFFER_SIZE",
+        "value": "16k",
+        "description": "Buffer size for reading the client request headers in the http block.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE",
+        "value": "16k",
+        "description": "Buffer size for reading the client request headers in the proxy server block.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS",
+        "value": "4 16k",
+        "description": "Number and size of buffers for large client request headers in the http block. Required because requests carry large headers, such as JWT-bearing cookies; requests with headers above the total are rejected with 400.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "KONG_NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS",
+        "value": "4 16k",
+        "description": "Number and size of buffers for large client request headers in the proxy server block. Keep it equal to KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "KONG_NGINX_PROXY_PROXY_BUFFERS",
+        "value": "64 160k",
+        "description": "Number and size of buffers used to read the upstream response in the proxy server block.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_PROXY_PROXY_BUFFER_SIZE",
+        "value": "160k",
+        "description": "Size of the buffer holding the first part of the upstream response (the headers); must be at least as large as the biggest response header set returned by modules.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT",
+        "value": "600000",
+        "description": "nginx keepalive_timeout for client connections. A bare number is seconds, so 600000 keeps an idle client connection open for about 7 days; use a value such as 600 or 600s for ten minutes.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_NGINX_UPSTREAM_KEEPALIVE",
+        "value": "600000",
+        "description": "nginx keepalive directive injected into the Kong upstream block: the maximum number of idle upstream connections cached per worker process. It is a connection count, not a time.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT",
+        "value": "600000",
+        "description": "Seconds an idle upstream keepalive connection stays open before it is closed (Kong default 60); 0 keeps idle connections open indefinitely.",
+        "type": "CONFIG",
+        "essential": false
+      }
+    ]
+  }
+}
