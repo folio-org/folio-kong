@@ -1,4 +1,4 @@
-ARG KONG_VERSION=3.9.3-ubuntu
+ARG KONG_VERSION=3.9.5-ubuntu
 FROM docker.io/library/kong:$KONG_VERSION
 
 # Kong configuration options documentation: https://github.com/Kong/kong/blob/master/kong.conf.default
